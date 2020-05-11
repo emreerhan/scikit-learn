@@ -178,6 +178,7 @@ class RFE(SelectorMixin, MetaEstimatorMixin, BaseEstimator):
             raise ValueError("Step must be >0")
 
         support_ = np.ones(n_features, dtype=np.bool)
+        supports_ = list()
         ranking_ = np.ones(n_features, dtype=np.int)
 
         if step_score:
@@ -187,6 +188,7 @@ class RFE(SelectorMixin, MetaEstimatorMixin, BaseEstimator):
         while np.sum(support_) > n_features_to_select:
             # Remaining features
             features = np.arange(n_features)[support_]
+            supports_.append(support_)
 
             # Rank the remaining features
             estimator = clone(self.estimator)
@@ -235,6 +237,7 @@ class RFE(SelectorMixin, MetaEstimatorMixin, BaseEstimator):
             self.scores_.append(step_score(self.estimator_, features))
         self.n_features_ = support_.sum()
         self.support_ = support_
+        self.supports_ = supports_
         self.ranking_ = ranking_
 
         return self
@@ -567,6 +570,7 @@ class RFECV(RFE):
 
         # Set final attributes
         self.support_ = rfe.support_
+        self.supports_= rfe.supports_
         self.n_features_ = rfe.n_features_
         self.ranking_ = rfe.ranking_
         self.estimator_ = clone(self.estimator)
